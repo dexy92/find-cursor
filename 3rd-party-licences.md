@@ -10,3 +10,8 @@ However, includes several third-party Open-Source libraries, which are licensed 
 
 License: Apache License 2.0  
 https://github.com/rust-windowing/winit/blob/master/LICENSE
+
+### pixels by Jay Oster
+
+License: MIT  
+https://github.com/parasyte/pixels/blob/main/LICENSE
