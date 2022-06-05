@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use pixels::{wgpu::Color, Pixels, SurfaceTexture};
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
