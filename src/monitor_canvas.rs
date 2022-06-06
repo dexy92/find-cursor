@@ -3,9 +3,10 @@ use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
     event_loop::EventLoop,
     monitor::MonitorHandle,
-    window::{Fullscreen, Window, WindowBuilder},
+    window::{Fullscreen, Window, WindowBuilder, WindowId},
 };
 
+#[derive(Copy, Clone)]
 pub struct PercentagePosition {
     pub x: f64,
     pub y: f64,
@@ -100,5 +101,9 @@ impl MonitorCanvas {
 
     pub fn window_size(&self) -> PhysicalSize<u32> {
         self.window.inner_size()
+    }
+
+    pub fn id(&self) -> WindowId {
+        self.window.id()
     }
 }
