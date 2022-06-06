@@ -4,7 +4,7 @@ mod monitor_canvas;
 use monitor_canvas::{MonitorCanvas, PercentagePosition};
 use std::{collections::HashMap, process};
 use winit::{
-    event::{Event, WindowEvent},
+    event::{ElementState, Event, MouseButton, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowId,
 };
@@ -36,6 +36,11 @@ fn run_loop(event_loop: EventLoop<()>, mut monitor_canvases: HashMap<WindowId, M
                         canvas.render().expect("Error on render");
                     }
                 }
+                WindowEvent::MouseInput {
+                    state: ElementState::Pressed,
+                    button: MouseButton::Left,
+                    ..
+                } => *control_flow = ControlFlow::Exit,
                 _ => (),
             },
             _ => (),
