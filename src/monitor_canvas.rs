@@ -1,10 +1,37 @@
 use pixels::{wgpu::Color, Pixels, SurfaceTexture};
 use winit::{
-    dpi::PhysicalPosition,
+    dpi::{PhysicalPosition, PhysicalSize},
     event_loop::EventLoop,
     monitor::MonitorHandle,
     window::{Fullscreen, Window, WindowBuilder},
 };
+
+pub struct PercentagePosition {
+    pub x: f64,
+    pub y: f64,
+}
+
+impl PercentagePosition {
+    pub fn from_physical(
+        physical_position: PhysicalPosition<f64>,
+        window_size: PhysicalSize<u32>,
+    ) -> PercentagePosition {
+        let percentage_x = physical_position.x / window_size.width as f64;
+        let percentage_y = physical_position.y / window_size.height as f64;
+
+        PercentagePosition {
+            x: percentage_x,
+            y: percentage_y,
+        }
+    }
+
+    pub fn to_physical(&self, window_size: PhysicalSize<u32>) -> PhysicalPosition<f64> {
+        let x = self.x * window_size.width as f64;
+        let y = self.y * window_size.height as f64;
+
+        PhysicalPosition { x, y }
+    }
+}
 
 pub struct MonitorCanvas {
     window: Window,
@@ -45,7 +72,9 @@ impl MonitorCanvas {
         Ok(MonitorCanvas { window, pixels })
     }
 
-    pub fn draw(&mut self, cursor_position: PhysicalPosition<f64>) {
+    pub fn draw(&mut self, cursor_position: PercentagePosition) {
+        let cursor_position = cursor_position.to_physical(self.window_size());
+
         let frame = self.pixels.get_frame();
         let window_size = self.window.inner_size();
         let cursor_x = cursor_position.x as i16;
@@ -67,5 +96,9 @@ impl MonitorCanvas {
 
     pub fn render(&self) -> Result<(), pixels::Error> {
         self.pixels.render()
+    }
+
+    pub fn window_size(&self) -> PhysicalSize<u32> {
+        self.window.inner_size()
     }
 }

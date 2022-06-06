@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 
 mod monitor_canvas;
-use monitor_canvas::MonitorCanvas;
+use monitor_canvas::{MonitorCanvas, PercentagePosition};
 use std::process;
 use winit::{
     event::{Event, WindowEvent},
@@ -16,7 +16,9 @@ fn run_loop(event_loop: EventLoop<()>, mut monitor_canvas: MonitorCanvas) {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 WindowEvent::CursorMoved { position, .. } => {
-                    monitor_canvas.draw(position);
+                    let percentage_position =
+                        PercentagePosition::from_physical(position, monitor_canvas.window_size());
+                    monitor_canvas.draw(percentage_position);
                     monitor_canvas.render().expect("Error on render");
                 }
                 _ => (),
