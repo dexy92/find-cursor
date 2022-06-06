@@ -37,6 +37,7 @@ impl PercentagePosition {
 pub struct MonitorCanvas {
     window: Window,
     pixels: Pixels,
+    last_position: PhysicalPosition<f64>,
 }
 
 impl MonitorCanvas {
@@ -70,7 +71,11 @@ impl MonitorCanvas {
 
         pixels.set_clear_color(Color::TRANSPARENT);
 
-        Ok(MonitorCanvas { window, pixels })
+        Ok(MonitorCanvas {
+            window,
+            pixels,
+            last_position: PhysicalPosition { x: -1.0, y: -1.0 },
+        })
     }
 
     pub fn draw(&mut self, cursor_position: PercentagePosition) {
@@ -80,6 +85,9 @@ impl MonitorCanvas {
         let window_size = self.window.inner_size();
         let cursor_x = cursor_position.x as i16;
         let cursor_y = cursor_position.y as i16;
+        let last_x = self.last_position.x as i16;
+        let last_y = self.last_position.y as i16;
+        self.last_position = cursor_position;
 
         for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
             let x = (i % window_size.width as usize) as i16;
@@ -87,10 +95,11 @@ impl MonitorCanvas {
 
             let rgba = if x == cursor_x || y == cursor_y {
                 [0xff, 0x00, 0x00, 0xff]
-            } else {
+            } else if x == last_x || y == last_y {
                 [0x00, 0x00, 0x00, 0x00]
+            } else {
+                continue;
             };
-
             pixel.copy_from_slice(&rgba);
         }
     }
