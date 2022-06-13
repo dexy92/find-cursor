@@ -78,30 +78,56 @@ impl MonitorCanvas {
         })
     }
 
+    fn draw_x(&mut self, x: i16, rgba: [u8; 4]) {
+        let width = self.window.inner_size().width as usize;
+
+        if x < 0 || x as usize > width {
+            return;
+        }
+
+        let frame = self.pixels.get_frame();
+
+        for pixel in frame.chunks_exact_mut(4).skip(x as usize).step_by(width) {
+            pixel.copy_from_slice(&rgba);
+        }
+    }
+
+    fn draw_y(&mut self, y: i16, rgba: [u8; 4]) {
+        let height = self.window.inner_size().height as usize;
+
+        if y < 0 || y as usize > height {
+            return;
+        }
+
+        let width = self.window.inner_size().width as usize;
+        let frame = self.pixels.get_frame();
+
+        for pixel in frame
+            .chunks_exact_mut(4)
+            .skip(y as usize * width)
+            .take(width)
+        {
+            pixel.copy_from_slice(&rgba);
+        }
+    }
+
     pub fn draw(&mut self, cursor_position: PercentagePosition) {
         let cursor_position = cursor_position.to_physical(self.window_size());
 
-        let frame = self.pixels.get_frame();
-        let window_size = self.window.inner_size();
         let cursor_x = cursor_position.x as i16;
         let cursor_y = cursor_position.y as i16;
         let last_x = self.last_position.x as i16;
         let last_y = self.last_position.y as i16;
         self.last_position = cursor_position;
 
-        for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-            let x = (i % window_size.width as usize) as i16;
-            let y = (i / window_size.width as usize) as i16;
+        let red_color: [u8; 4] = [0xff, 0x00, 0x00, 0xff];
+        let transparent_color: [u8; 4] = [0x00, 0x00, 0x00, 0x00];
 
-            let rgba = if x == cursor_x || y == cursor_y {
-                [0xff, 0x00, 0x00, 0xff]
-            } else if x == last_x || y == last_y {
-                [0x00, 0x00, 0x00, 0x00]
-            } else {
-                continue;
-            };
-            pixel.copy_from_slice(&rgba);
-        }
+        self.draw_x(last_x, transparent_color);
+        self.draw_x(cursor_x, red_color);
+
+        self.draw_y(last_y, transparent_color);
+        self.draw_y(cursor_y, red_color);
     }
 
     pub fn render(&self) -> Result<(), pixels::Error> {
